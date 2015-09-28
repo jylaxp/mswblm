@@ -1,4 +1,4 @@
-#-*-coding:gbk-*-
+#-*-coding:utf-8-*-
 __author__ = 'Administrator'
 
 import dataAccess
@@ -10,9 +10,9 @@ import win32event
 import time
 import json
 import traceback
-import sys
-reload(sys)
-sys.setdefaultencoding('gbk')
+#import sys
+#reload(sys)
+#sys.setdefaultencoding('gbk')
 
 class mswblmppyService():
     _svc_name_ = "mswblmppy"
@@ -20,21 +20,19 @@ class mswblmppyService():
     _svc_description_ = "mswblmppy Service"
 
     def __init__(self, args):
-        try:
-            self.logger = self._getLogger()
-            self.isAlive = True
-            self.payDic = {}
+        self.logger = self._getLogger()
+        self.isAlive = True
+        self.payDic = {}
 
-            self.dbfile = None
-            self.systemfile = None
-            self.netbar = None
-            self._config()
+        self.dbfile = None
+        self.systemfile = None
+        self.netbar = None
+        self._config()
 
-            self.dao = dataAccess.DAO(self.dbfile, self.systemfile)
-            self.post = httpPost.HttpPost()
-            self.url = r'http://www.mswblm.com/wang/index.php?g=Wang&m=User&a=bar_test'
-        except BaseException, e:
-            self.logger.error(traceback.format_exc())
+        self.dao = dataAccess.DAO(self.dbfile, self.systemfile)
+        self.post = httpPost.HttpPost()
+        #self.url = r'http://www.mswblm.com/wang/index.php?g=Wang&m=User&a=bar_test'
+        self.url = r'http://www.mswblm.com/wang/index.php?g=Wang&m=Test&a=bar_test'
 
     def _getLogger(self):
         import logging
@@ -54,25 +52,21 @@ class mswblmppyService():
         import ConfigParser
         config = ConfigParser.ConfigParser()
         config.read(r"C:\WINDOWS\mswblm.ini")
-        self.dbfile = config.get("mswblm", "AccessPath").encode('utf8')
-        self.systemfile = config.get("mswblm", "SystemPath").encode('utf8')
-        self.netbar = config.get("mswblm", "NetBar").encode('utf8')
+        self.dbfile = config.get("mswblm", "AccessPath")
+        self.systemfile = config.get("mswblm", "SystemPath")
+        self.netbar = config.get("mswblm", "NetBar").decode('gbk').encode('utf-8')
+        print self.netbar
 
     def SvcDoRun(self):
         import time
-        try:
-            self.logger.debug("svc do run....")
-            while self.isAlive:
-                try:
-                    self.logger.debug("before process")
-                    self._process()
-                    self.logger.debug("after process")
-                except BaseException, e:
-                    self.logger.error(traceback.format_exc())
-                finally:
-                    time.sleep(1)
-        except BaseException, e:
-            self.logger.error(e)
+        self.logger.debug("svc do run....")
+        while self.isAlive:
+            try:
+                self.logger.debug("before process")
+                self._process()
+                self.logger.debug("after process")
+            finally:
+                time.sleep(1)
 
     def SvcStop(self):
         self.logger.debug("svc do stop....")
@@ -90,7 +84,7 @@ class mswblmppyService():
         for log in logs:
             if LL is None:
                 LL = []
-            if log['sCommand'].find(r'Ë¢¿¨¼Æ·Ñ') > -1 or log['sCommand'].find(r'¿Í»§¶ËµÇÂ¼') > -1 or log['sCommand'].find(r'½áÕÊ') > -1:
+            if log['sCommand'].find(u'åˆ·å¡è®¡è´¹') > -1 or log['sCommand'].find(u'å®¢æˆ·ç«¯ç™»å½•') > -1 or log['sCommand'].find(u'ç»“å¸') > -1:
                 info = self.dao.getInsiderinfo(log['SCardNumber'])
                 if info:
                     d = {}
@@ -99,11 +93,11 @@ class mswblmppyService():
                     d['idcard'] = '510107199007114395'
                     d['pcnum'] = log['ComputerName']
                     d['money'] = info['InsiderMoney']
-                    if log['sCommand'].find(r'Ë¢¿¨¼Æ·Ñ') > -1:
+                    if log['sCommand'].find(u'åˆ·å¡è®¡è´¹') > -1:
                         d['type'] = 1
-                    elif log['sCommand'].find(r'¿Í»§¶ËµÇÂ¼') > -1:
+                    elif log['sCommand'].find(u'å®¢æˆ·ç«¯ç™»å½•') > -1:
                         d['type'] = 2
-                    elif log['sCommand'].find(r'½áÕÊ') > -1:
+                    elif log['sCommand'].find(u'ç»“å¸') > -1:
                         d['type'] = 3
                     else:
                         d['type'] = 3
@@ -117,7 +111,7 @@ class mswblmppyService():
     def _payEventHandle(self):
         payEvents = self.dao.getPersonnelInfos()
         for evt in payEvents:
-            if evt['ComputerName'].find(r'»áÔ±³äÖµ') > -1:
+            if evt['ComputerName'].find(u'ä¼šå‘˜å……å€¼') > -1:
                 e = self.payDic.get(evt['InsiderNumber'])
                 if e is None:
                     self.payDic[evt['InsiderNumber']] = self._getPayObject(evt)

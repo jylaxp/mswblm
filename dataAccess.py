@@ -30,11 +30,11 @@ class DAO():
         while not rs.EOF:
             d = {}
             d['ID'] = int(rs('ID'))
-            d['SCardNumber'] = str(rs('SCardNumber')).strip()
-            d['ComputerName'] = str(rs('ComputerName')).strip()
-            d['sCommand'] = str(rs('sCommand')).strip()
-            d['sNote'] = str(rs('sNote')).strip()
-            d['sDate'] = str(rs('sDate')).strip()
+            d['SCardNumber'] = str(rs('SCardNumber')).strip().decode('gbk')
+            d['ComputerName'] = str(rs('ComputerName')).strip().decode('gbk')
+            d['sCommand'] = str(rs('sCommand')).strip().decode('gbk')
+            d['sNote'] = str(rs('sNote')).strip().decode('gbk')
+            d['sDate'] = str(rs('sDate')).strip().decode('gbk')
             log.append(d)
             self.lastLoginID += 1
             rs.MoveNext()
@@ -54,10 +54,10 @@ class DAO():
         if not rs.EOF:
             d = {}
             d['ID'] = int(rs('ID'))
-            d['InsiderNumber'] = str(rs('InsiderNumber')).strip()
-            d['TransactName'] = str(rs('TransactName')).strip()
-            d['TransactTime'] = str(rs('TransactTime')).strip()
-            d['InsiderMoney'] = float(str(rs('InsiderMoney')).strip())
+            d['InsiderNumber'] = str(rs('InsiderNumber')).strip().decode('gbk')
+            d['TransactName'] = str(rs('TransactName')).strip().decode('gbk')
+            d['TransactTime'] = str(rs('TransactTime')).strip().decode('gbk')
+            d['InsiderMoney'] = float(str(rs('InsiderMoney')).strip().decode('gbk'))
         rs.Close()
         conn.Close()
         return d
@@ -74,13 +74,13 @@ class DAO():
         while not rs.EOF:
             d = {}
             d['ID'] = int(rs('ID'))
-            d['ComputerName'] = str(rs('ComputerName')).strip()
-            d['Insider'] = str(rs('Insider')).strip()
-            d['InsiderNumber'] = str(rs('InsiderNumber')).strip()
-            d['SCardType'] = str(rs('SCardType')).strip()
-            d['BeginTime'] = str(rs('BeginTime')).strip()
-            d['EndTime'] = str(rs('EndTime')).strip()
-            d['YSMoney'] = float(str(rs('YSMoney')).strip())
+            d['ComputerName'] = str(rs('ComputerName')).strip().decode('gbk')
+            d['Insider'] = str(rs('Insider')).strip().decode('gbk')
+            d['InsiderNumber'] = str(rs('InsiderNumber')).strip().decode('gbk')
+            d['SCardType'] = str(rs('SCardType')).strip().decode('gbk')
+            d['BeginTime'] = str(rs('BeginTime')).strip().decode('gbk')
+            d['EndTime'] = str(rs('EndTime')).strip().decode('gbk')
+            d['YSMoney'] = float(str(rs('YSMoney')).strip().decode('gbk'))
             L.append(d)
             self.personnelInfoLastID += 1
             rs.MoveNext()

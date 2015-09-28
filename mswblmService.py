@@ -1,4 +1,4 @@
-#-*-coding:gbk-*-
+#-*-coding:utf-8-*-
 __author__ = 'Administrator'
 
 import dataAccess
@@ -10,14 +10,11 @@ import win32event
 import time
 import json
 import traceback
-import sys
-reload(sys)
-sys.setdefaultencoding('gbk')
 
 class mswblmService(win32serviceutil.ServiceFramework):
-    _svc_name_ = "mswblmppy"
-    _svc_display_name_ = "mswblmppy"
-    _svc_description_ = "mswblmppy Service"
+    _svc_name_ = "mswblm"
+    _svc_display_name_ = "mswblm"
+    _svc_description_ = "mswblm Service"
 
     def __init__(self, args):
         try:
@@ -34,6 +31,7 @@ class mswblmService(win32serviceutil.ServiceFramework):
             self.dao = dataAccess.DAO(self.dbfile, self.systemfile)
             self.post = httpPost.HttpPost()
             self.url = r'http://www.mswblm.com/wang/index.php?g=Wang&m=User&a=bar_test'
+            #self.url = r'http://www.mswblm.com/wang/index.php?g=Wang&m=Test&a=bar_test'
         except BaseException, e:
             self.logger.error(traceback.format_exc())
 
@@ -55,9 +53,9 @@ class mswblmService(win32serviceutil.ServiceFramework):
         import ConfigParser
         config = ConfigParser.ConfigParser()
         config.read(r"C:\WINDOWS\mswblm.ini")
-        self.dbfile = config.get("mswblm", "AccessPath").encode('utf8')
-        self.systemfile = config.get("mswblm", "SystemPath").encode('utf8')
-        self.netbar = config.get("mswblm", "NetBar").encode('utf8')
+        self.dbfile = config.get("mswblm", "AccessPath").decode('gbk').encode('utf-8')
+        self.systemfile = config.get("mswblm", "SystemPath").decode('gbk').encode('utf-8')
+        self.netbar = config.get("mswblm", "NetBar").decode('gbk').encode('utf-8')
 
     def SvcDoRun(self):
         import time
@@ -90,7 +88,7 @@ class mswblmService(win32serviceutil.ServiceFramework):
         for log in logs:
             if LL is None:
                 LL = []
-            if log['sCommand'].find(r'Ë¢¿¨¼Æ·Ñ') > -1 or log['sCommand'].find(r'¿Í»§¶ËµÇÂ¼') > -1 or log['sCommand'].find(r'½áÕÊ') > -1:
+            if log['sCommand'].find(u'åˆ·å¡è®¡è´¹') > -1 or log['sCommand'].find(u'å®¢æˆ·ç«¯ç™»å½•') > -1 or log['sCommand'].find(u'ç»“å¸') > -1:
                 info = self.dao.getInsiderinfo(log['SCardNumber'])
                 if info:
                     d = {}
@@ -99,11 +97,11 @@ class mswblmService(win32serviceutil.ServiceFramework):
                     #d['idcard'] = '510107199007114395'
                     d['pcnum'] = log['ComputerName']
                     d['money'] = info['InsiderMoney']
-                    if log['sCommand'].find(r'Ë¢¿¨¼Æ·Ñ') > -1:
+                    if log['sCommand'].find(u'åˆ·å¡è®¡è´¹') > -1:
                         d['type'] = 1
-                    elif log['sCommand'].find(r'¿Í»§¶ËµÇÂ¼') > -1:
+                    elif log['sCommand'].find(u'å®¢æˆ·ç«¯ç™»å½•') > -1:
                         d['type'] = 2
-                    elif log['sCommand'].find(r'½áÕÊ') > -1:
+                    elif log['sCommand'].find(u'ç»“å¸') > -1:
                         d['type'] = 3
                     else:
                         d['type'] = 3
@@ -117,7 +115,7 @@ class mswblmService(win32serviceutil.ServiceFramework):
     def _payEventHandle(self):
         payEvents = self.dao.getPersonnelInfos()
         for evt in payEvents:
-            if evt['ComputerName'].find(r'»áÔ±³äÖµ') > -1:
+            if evt['ComputerName'].find(u'ä¼šå‘˜å……å€¼') > -1:
                 e = self.payDic.get(evt['InsiderNumber'])
                 if e is None:
                     self.payDic[evt['InsiderNumber']] = self._getPayObject(evt)
@@ -132,7 +130,6 @@ class mswblmService(win32serviceutil.ServiceFramework):
             now = int(time.time())
             if now - v['time'] > 10:
                 dataList.append(v)
-
 
         if dataList is None:
             return
