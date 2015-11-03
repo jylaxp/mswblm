@@ -1,0 +1,155 @@
+
+启动时请求各同步表最大ID
+请求数据格式：
+JSON
+data:{
+	"netbar":NetbarID,
+	"token":token,//类似于密码 装逼用 24位字符数字
+	"table":"initialise"
+}
+返回数据：
+JSON
+data:{
+	"netbar":NetbarID,
+	"personnelinfo":maxID,
+	"insiderinfo":maxID,
+	"huanbanls":maxID,
+}
+
+
+需要监听并同步的表：
+1.personnelinfo(NethouseSer)
+	表内容：下机、充值记录
+	作用：用于用户消费查询、积分统计
+	要求：需要单独监听并同步收费机上的数据到服务器中
+	备注：下机记录包括两种消费后下机和未消费下机（及刷卡后未上机） 
+		  Balance字段需要从insiderInfo中InsiderMoney字段获取
+	建议：$value['ComputerName'] == '会员充值' 为充值 type=2
+			  $value['BeginTime'] == ''为未消费下机 type=0
+			  其余为消费下机 type=1
+	数据传输格式：
+	JSON 
+	data:{
+			"netbar":NetbarID,
+			"table":personnelinfo,
+			"data":[{
+					//第一条记录
+					"CurrentID": ID,//网吧自增ID字段
+					"Name": Name,//用户姓名
+					"ComputerName":ComputerName,//机器编号
+					"InsiderNumber":InsiderNumber,//用户身份证号
+					"SCardType":SCardType,//用户会员卡类型
+					"Type":type,//自定义 本条记录类型  0未消费 1消费 2充值记录
+					"BeginTime":BeginTime,//开始时间
+  					"EndTime":EndTime,// 结束时间
+  					"YSMoney":YSMoney,//应收金额',
+					"InsiderMoney":InsiderMoney,//余额 需要从insiderinfo中InsiderMoney获取
+  					"EverLogin": Other1,//上机记录 Other1字段
+  					"GiftMoney": Other2//赠送金额 Other2字段
+				},
+				...
+			]
+	}
+
+	返回：ID  int  以此返回值作为maxID
+
+
+2.insiderinfo(Insider)
+	表内容：会员信息
+	作用：会员余额查询
+	要求：需要单独监听并同步收费机上的数据到服务器中
+	备注：只需同步新增会员信息 无需同步已有会员改变后的信息 比如会员余额
+	建议：无
+	数据传输格式：
+	JSON
+	data：{
+			"netbar":NetbarID,
+			"table":insiderinfo,
+			"data":[{
+					"CurrentID":ID,//
+  					"InsiderNumber":InsiderNumber, //'会员号'
+  					"SCardType":SCardType,// '会员卡类型'
+  					"TransactName":TransactName,// '会员姓名',
+  					"TransactTime": TransactTime ,//'办理时间',
+  					"InsiderMoney": InsiderMoney// '卡内余额',
+				},
+				...
+			]
+	}
+
+	返回：ID  int  以此返回值作为maxID
+
+
+3.huanbanls(NethouseSer)
+	表内容：换班信息
+	作用：管理人员查询每日收入等基本信息
+	要求：需要单独监听并同步收费机上的数据到服务器中
+	备注：无 
+	建议：无
+	数据传输格式：
+	JSON
+	data：{
+			"netbar":NetbarID,
+			"table":huanbanls,
+			"data":[{
+					"CurrentID":ID,//
+ 					"OldName":OldName,//上一班名称',
+  					"OldTime":OldTime//, //本班开始时间
+  					"OldMoney":OldMoney,//上一班预留金额
+  					"CurName":CurName,//本班名称
+  					"CurTime":CurTime,//本班结束时间
+  					"InsiderMoney":InsiderMoney,//本班会员充值
+  					"PayMoney":PayMoney,//本班总收入
+  					"SpareMoney":SpareMoney//本班剩余金额
+				},
+				...
+			]
+	}
+
+	返回：ID  int  以此返回值作为maxID
+
+
+
+额外功能表：
+1.jftypedefine(NethouseSer)
+	表内容：会员卡类型
+	作用：会员卡类型
+	要求：需要每次收费机端启动时 将会员卡信息一次性同步到服务器
+	备注：无 
+	建议：无
+	数据传输格式：
+	JSON
+	data：{
+			"netbar":NetbarID,
+			"table":jftypedefine,
+			"data":[{
+  					"CardJFCode":CardJFCode,//卡类型编码
+  					"CardJFName":CardJFName,//卡类型名称
+				},
+				...
+			]
+	}
+
+2.workloginfo(Loginfo)&&usinguser(NethouseSer)
+  表内容：网吧基本日志&&网吧实时上机情况
+  作用：网吧管理人员实时查询网吧当前情况
+  要求：监听workloginfo上网人员的上下机记录 统计并同步usinguser中数据到服务器
+  备注：workloginfo中的数据无需同步 启动后从最新的记录开始监听
+  建议：usinguser中
+  		SendSign字段1为开始计费 0为未计费 
+  		Insider字段1为会员 0为非会员
+  	数据传输格式：
+  	JSON
+  	data：{
+  			"netbar":NetbarID,
+  			"table": netbarState,
+  			"data":[{
+    					"Total":Total,//上网总人数',
+    					"Temp":Temp,//非会员人数 包含管理员和临时卡',
+    					"Online":[]//网吧在线机器'
+  				},
+  				...
+  			]
+  	}
+
+	无数据返回
