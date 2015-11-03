@@ -43,7 +43,7 @@ data:{
 					"BeginTime":BeginTime,//开始时间
   					"EndTime":EndTime,// 结束时间
   					"YSMoney":YSMoney,//应收金额',
-					"Balance":Balance,//余额 需要从insiderinfo中InsiderMoney获取
+					"InsiderMoney":InsiderMoney,//余额 需要从insiderinfo中InsiderMoney获取
   					"EverLogin": Other1,//上机记录 Other1字段
   					"GiftMoney": Other2//赠送金额 Other2字段
 				},
