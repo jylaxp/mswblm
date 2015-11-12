@@ -28,7 +28,7 @@ data:{
 	作用：用于用户消费查询、积分统计
 	要求：需要单独监听并同步收费机上的数据到服务器中
 	备注：下机记录包括两种消费后下机和未消费下机（及刷卡后未上机） 
-		  Balance字段需要从insiderInfo中InsiderMoney字段获取
+		  InsiderMoney字段需要从insiderInfo中InsiderMoney字段获取
 	建议：$value['ComputerName'] == '会员充值' 为充值 type=2
 			  $value['BeginTime'] == ''为未消费下机 type=0
 			  其余为消费下机 type=1
