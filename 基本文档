@@ -147,7 +147,7 @@ data:{
   要求：监听workloginfo上网人员的上下机记录 统计并同步usinguser中数据到服务器
   备注：workloginfo中的数据无需同步 启动后从最新的记录开始监听
   建议：usinguser中
-  		SendSign字段1为开始计费 0为未计费 
+  		/*SendSign字段1为开始计费 0为未计费*/ 修改为以Area作为依据 -1表示未上机 其余为已经上机计费
   		Insider字段1为会员 0为非会员
   	数据传输格式：
   	JSON
